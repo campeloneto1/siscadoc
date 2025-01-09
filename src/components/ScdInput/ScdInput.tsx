@@ -7,6 +7,8 @@ interface ScdInputProps {
   type: string;
   placeholder: string;
   required: boolean;
+  field: any;
+  meta: any;
 }
 
 const ScdInput = ({
@@ -15,6 +17,8 @@ const ScdInput = ({
   type,
   placeholder,
   required,
+  meta,
+  field,
 }: ScdInputProps) => {
   return (
     <div className="grid gap-2">
@@ -24,7 +28,9 @@ const ScdInput = ({
         type={type}
         placeholder={placeholder}
         required={required}
+        {...field}
       />
+      {meta.touched && meta.error && <div className="error">{meta.error}</div>}
     </div>
   );
 };

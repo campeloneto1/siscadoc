@@ -1,9 +1,11 @@
+import { encrypt } from "@/utils/encryption";
 import { createContext, ReactNode, useContext, useState } from "react";
-import { toast } from "react-toastify";
 
 interface UserContextType {
   user: any;
+  token: string;
   updateLocalUser: (user: any) => void;
+  updateLocalToken: (token: string) => void;
   logout: () => void;
 }
 
@@ -11,10 +13,16 @@ const UseAuth = createContext<UserContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<any>({});
+  const [token, setToken] = useState<string>("");
 
-  const updateLocalUser = async (user: any) => {
-    await setUser(user);
+  const updateLocalUser = (user: any) => {
+    setUser(user);
     //await sessionStorage.setItem("user", encryptString(JSON.stringify(user)));
+  };
+
+  const updateLocalToken = (token: string) => {
+    setToken(token);
+    sessionStorage.setItem("token", encrypt(token));
   };
 
   const logout = () => {
@@ -24,7 +32,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <UseAuth.Provider value={{ user, updateLocalUser, logout }}>
+    <UseAuth.Provider
+      value={{ user, token, updateLocalUser, updateLocalToken, logout }}
+    >
       {children}
     </UseAuth.Provider>
   );
