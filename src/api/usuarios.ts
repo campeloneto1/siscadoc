@@ -4,10 +4,12 @@ import showToast from "@/utils/toast";
 
 const endpoint = "users";
 
-const index = async (page?: string) => {
+const index = async (page?: string, search?: string) => {
   try {
     const response = await axiosInstance.get<UsuariosResponse>(
-      `${endpoint}${page ? `?page=${page}` : ``}`
+      `${endpoint}${page ? `?page=${page}` : ``}${
+        search ? `&search=${search}` : ``
+      }`
     );
     return response.data;
   } catch (error) {

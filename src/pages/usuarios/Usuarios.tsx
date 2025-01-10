@@ -3,33 +3,13 @@ import { useBreadcrumb } from "@/hooks/UseBreadcrumb";
 import { UsuariosResponse } from "@/interfaces/Usuario";
 import { ROUTES } from "@/router/router";
 import { useEffect, useState } from "react";
-
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
-
-import { Skeleton } from "@/components/ui/skeleton";
-
 import { Plus } from "lucide-react";
+import SdcPagination from "@/components/SdcPagination/SdcPagination";
+import SdcTable from "@/components/SdcTable/SdcTable";
+import { debounce } from "lodash";
 
 const Usuarios = () => {
   const { updateBreadcrumb } = useBreadcrumb();
@@ -37,10 +17,12 @@ const Usuarios = () => {
     UsuariosResponse | undefined
   >(undefined);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
 
   const getUsuarios = async (page?: string) => {
     setLoading(true);
-    const response = await UsuariosAPI.index(page);
+    const pagenumber = page ? page : "1";
+    const response = await UsuariosAPI.index(pagenumber, search);
     if (response) {
       setUSuariosResponse(response);
       setLoading(false);
@@ -51,6 +33,20 @@ const Usuarios = () => {
     const page = url?.split("page=");
     getUsuarios(page![1]);
   };
+
+  const searching = (value: string) => {
+    setSearch(value);
+  };
+
+  // Função de busca com debounce
+  const debouncedSearch = debounce(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      searching(event.target.value.toLocaleLowerCase());
+    },
+    300
+  ); // 300ms de debounce
+
+  const tableheader = ["#", "Nome", "CPF", "E-mail", "Telefone 1"];
 
   useEffect(() => {
     updateBreadcrumb([
@@ -66,10 +62,16 @@ const Usuarios = () => {
   }, [window.location.pathname]);
 
   useEffect(() => {
-    if (!usuariosresponse) {
-      getUsuarios();
+    if (search) {
+      getUsuarios("1"); // Chama a função de busca após o debounce
     }
-  });
+  }, [search]); // Monitorando a mudança no search
+
+  useEffect(() => {
+    if (!usuariosresponse) {
+      getUsuarios("1");
+    }
+  }, [usuariosresponse]);
 
   return (
     <div>
@@ -79,20 +81,25 @@ const Usuarios = () => {
           <Plus />
         </Button>
 
-        <Input className="w-96" type="search" placeholder="Pesquisar..." />
+        <Input
+          onChange={debouncedSearch}
+          className="w-96"
+          type="search"
+          placeholder="Pesquisar..."
+        />
       </div>
-      <Table>
-        <TableCaption>Lista dos usuários do sistema.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">#</TableHead>
-            <TableHead>Nome</TableHead>
-            <TableHead>CPF</TableHead>
-            <TableHead>E-mail</TableHead>
-            <TableHead>Telefone</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      {!loading && usuariosresponse && (
+        <SdcTable
+          text="Lista dos usuários do sistema."
+          header={tableheader}
+          infos={{
+            from: usuariosresponse.meta.from,
+            to: usuariosresponse.meta.to,
+            total: usuariosresponse.meta.total,
+            per_page: usuariosresponse.meta.per_page,
+          }}
+          loading={loading}
+        >
           {!loading &&
             usuariosresponse &&
             usuariosresponse.data.map((usuario) => (
@@ -104,86 +111,17 @@ const Usuarios = () => {
                 <TableCell>{usuario.telefone1}</TableCell>
               </TableRow>
             ))}
-          {loading && (
-            <>
-              <TableRow>
-                <TableCell colSpan={5}>
-                  <Skeleton className="h-8 w-full" />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell colSpan={5}>
-                  <Skeleton className="h-8 w-full" />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell colSpan={5}>
-                  <Skeleton className="h-8 w-full" />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell colSpan={5}>
-                  <Skeleton className="h-8 w-full" />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell colSpan={5}>
-                  <Skeleton className="h-8 w-full" />
-                </TableCell>
-              </TableRow>
-            </>
-          )}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={5}>
-              {`Exibindo de ${usuariosresponse?.meta.from} à ${usuariosresponse?.meta.to} de ${usuariosresponse?.meta.total}, ${usuariosresponse?.meta.per_page} por página`}
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-      <Pagination>
-        <PaginationContent>
-          {usuariosresponse && (
-            <PaginationItem>
-              <PaginationPrevious
-                className="cursor-pointer"
-                onClick={() => changePage(usuariosresponse.links.prev)}
-              />
-            </PaginationItem>
-          )}
+        </SdcTable>
+      )}
 
-          {usuariosresponse &&
-            usuariosresponse?.meta.links.map((item, index) => {
-              // Renderiza os itens que não são o primeiro ou o último
-              if (
-                index !== 0 &&
-                index !== usuariosresponse.meta.links.length - 1
-              ) {
-                return (
-                  <PaginationItem key={index}>
-                    <PaginationLink
-                      className="cursor-pointer"
-                      isActive={item.active}
-                      onClick={() => changePage(item.url)}
-                    >
-                      {item.label}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              }
-              return null; // Retorna null se não for o item válido para renderizar
-            })}
-          {usuariosresponse && (
-            <PaginationItem>
-              <PaginationNext
-                className="cursor-pointer"
-                onClick={() => changePage(usuariosresponse.links.next)}
-              />
-            </PaginationItem>
-          )}
-        </PaginationContent>
-      </Pagination>
+      {usuariosresponse && (
+        <SdcPagination
+          changePage={changePage}
+          next={usuariosresponse.links.next}
+          previos={usuariosresponse.links.prev}
+          pages={usuariosresponse.meta.links}
+        />
+      )}
     </div>
   );
 };
