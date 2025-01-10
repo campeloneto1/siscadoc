@@ -1,12 +1,12 @@
-import { Usuario, UsuariosResponse } from "@/interfaces/Usuario";
+import { Perfil, PerfisResponse } from "@/interfaces/Perfil";
 import axiosInstance from "./axios";
 import showToast from "@/utils/toast";
 
-const endpoint = "users";
+const endpoint = "perfis";
 
 const index = async (page?: string, search?: string, all?: boolean) => {
   try {
-    const response = await axiosInstance.get<UsuariosResponse>(
+    const response = await axiosInstance.get<PerfisResponse>(
       all
         ? `${endpoint}?all=true`
         : `${endpoint}${page ? `?page=${page}` : ``}${
@@ -30,7 +30,7 @@ const show = async (id: number) => {
   }
 };
 
-const store = async (data: Partial<Usuario>) => {
+const store = async (data: Usuario) => {
   try {
     const response = await axiosInstance.post(`${endpoint}`, { data });
     return response.data;

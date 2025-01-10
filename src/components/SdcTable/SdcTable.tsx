@@ -31,7 +31,7 @@ const SdcTable = ({
       <TableHeader>
         <TableRow>
           {header.map((item) => {
-            return <TableHead>{item}</TableHead>;
+            return <TableHead key={item}>{item}</TableHead>;
           })}
         </TableRow>
       </TableHeader>
@@ -68,7 +68,7 @@ const SdcTable = ({
       <TableFooter>
         <TableRow>
           <TableCell colSpan={header.length}>
-            {`Exibindo de ${infos.from} à ${infos.to} de ${infos.total}, ${infos.per_page} por página`}
+            {`Exibindo de ${infos.from} à ${infos.to} de ${infos.total} registros, ${infos.per_page} por página`}
           </TableCell>
         </TableRow>
       </TableFooter>

@@ -6,8 +6,9 @@ export interface Usuario {
   nome: string;
   cpf: string;
   telefone1: string;
-  telefone2: string;
+  telefone2: string | null;
   email: string;
+  perfil_id?: string;
   perfil: Perfil;
 }
 

@@ -10,6 +10,8 @@ import { Plus } from "lucide-react";
 import SdcPagination from "@/components/SdcPagination/SdcPagination";
 import SdcTable from "@/components/SdcTable/SdcTable";
 import { debounce } from "lodash";
+import { formatarCPF, formatarTelefone } from "@/utils/utiuls";
+import SdcUsuariosForm from "@/containers/SdcUsuariosForm/SdcUsuariosForm";
 
 const Usuarios = () => {
   const { updateBreadcrumb } = useBreadcrumb();
@@ -18,6 +20,7 @@ const Usuarios = () => {
   >(undefined);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [create, setCreate] = useState(false);
 
   const getUsuarios = async (page?: string) => {
     setLoading(true);
@@ -38,6 +41,10 @@ const Usuarios = () => {
     setSearch(value);
   };
 
+  const cadastrar = () => {
+    setCreate(!create);
+  };
+
   // Função de busca com debounce
   const debouncedSearch = debounce(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +53,7 @@ const Usuarios = () => {
     300
   ); // 300ms de debounce
 
-  const tableheader = ["#", "Nome", "CPF", "E-mail", "Telefone 1"];
+  const tableheader = ["#", "Nome", "CPF", "E-mail", "Telefone 1", "Opções"];
 
   useEffect(() => {
     updateBreadcrumb([
@@ -75,52 +82,59 @@ const Usuarios = () => {
 
   return (
     <div>
-      <div className="mb-2 flex justify-between">
-        <Button variant="outline">
-          Cadastrar
-          <Plus />
-        </Button>
+      {create ? (
+        <SdcUsuariosForm />
+      ) : (
+        <>
+          <div className="mb-2 flex justify-between">
+            <Button onClick={() => cadastrar()} variant="outline">
+              Cadastrar
+              <Plus />
+            </Button>
 
-        <Input
-          onChange={debouncedSearch}
-          className="w-96"
-          type="search"
-          placeholder="Pesquisar..."
-        />
-      </div>
-      {!loading && usuariosresponse && (
-        <SdcTable
-          text="Lista dos usuários do sistema."
-          header={tableheader}
-          infos={{
-            from: usuariosresponse.meta.from,
-            to: usuariosresponse.meta.to,
-            total: usuariosresponse.meta.total,
-            per_page: usuariosresponse.meta.per_page,
-          }}
-          loading={loading}
-        >
-          {!loading &&
-            usuariosresponse &&
-            usuariosresponse.data.map((usuario) => (
-              <TableRow key={usuario.id}>
-                <TableCell className="font-medium">{usuario.id}</TableCell>
-                <TableCell>{usuario.nome}</TableCell>
-                <TableCell>{usuario.cpf}</TableCell>
-                <TableCell>{usuario.email}</TableCell>
-                <TableCell>{usuario.telefone1}</TableCell>
-              </TableRow>
-            ))}
-        </SdcTable>
-      )}
+            <Input
+              onChange={debouncedSearch}
+              className="w-96"
+              type="search"
+              placeholder="Pesquisar..."
+            />
+          </div>
+          {!loading && usuariosresponse && (
+            <SdcTable
+              text="Lista dos usuários do sistema."
+              header={tableheader}
+              infos={{
+                from: usuariosresponse.meta.from,
+                to: usuariosresponse.meta.to,
+                total: usuariosresponse.meta.total,
+                per_page: usuariosresponse.meta.per_page,
+              }}
+              loading={loading}
+            >
+              {!loading &&
+                usuariosresponse &&
+                usuariosresponse.data.map((usuario) => (
+                  <TableRow key={usuario.id}>
+                    <TableCell className="font-medium">{usuario.id}</TableCell>
+                    <TableCell>{usuario.nome}</TableCell>
+                    <TableCell>{formatarCPF(usuario.cpf)}</TableCell>
+                    <TableCell>{usuario.email}</TableCell>
+                    <TableCell>{formatarTelefone(usuario.telefone1)}</TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                ))}
+            </SdcTable>
+          )}
 
-      {usuariosresponse && (
-        <SdcPagination
-          changePage={changePage}
-          next={usuariosresponse.links.next}
-          previos={usuariosresponse.links.prev}
-          pages={usuariosresponse.meta.links}
-        />
+          {usuariosresponse && (
+            <SdcPagination
+              changePage={changePage}
+              next={usuariosresponse.links.next}
+              previos={usuariosresponse.links.prev}
+              pages={usuariosresponse.meta.links}
+            />
+          )}
+        </>
       )}
     </div>
   );

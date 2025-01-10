@@ -91,8 +91,10 @@ export function LoginForm({
                     placeholder="CPF"
                     required={true}
                     type="text"
-                    component={ScdInput} // Pass ScdInput as the custom component for Field
-                    meta={{ error: errors.cpf, touched: touched.cpf }} // Meta will be passed down
+                    component={ScdInput}
+                    meta={{ error: errors.cpf, touched: touched.cpf }}
+                    maxLength={11}
+                    minLength={11}
                   />
 
                   <Field
@@ -102,11 +104,12 @@ export function LoginForm({
                     placeholder="Senha"
                     required={true}
                     type="password"
-                    component={ScdInput} // Pass ScdInput as the custom component for Field
+                    component={ScdInput}
                     meta={{
                       error: errors.password,
                       touched: touched.password,
-                    }} // Meta will be passed down
+                    }}
+                    minLength={6}
                   />
 
                   <Button type="submit" className="w-full" disabled={!isValid}>
