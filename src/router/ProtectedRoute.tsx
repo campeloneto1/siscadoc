@@ -3,6 +3,7 @@ import { useAuth } from "../hooks/UseAuth";
 import { Navigate } from "react-router-dom";
 import { ROUTES } from "./router";
 import { AuthAPI } from "@/api";
+import { decrypt } from "@/utils/encryption";
 
 const ProtectedRoute: React.FC<any> = ({ children }) => {
   const { user, updateLocalUser, token, updateLocalToken } = useAuth();
@@ -11,14 +12,14 @@ const ProtectedRoute: React.FC<any> = ({ children }) => {
 
   const setUser = async () => {
     const user = await AuthAPI.user();
-    updateLocalUser({ user });
+    updateLocalUser(user);
   };
 
   useEffect(() => {
     if (localtoken && !token) {
-      updateLocalToken(localtoken);
+      updateLocalToken(decrypt(localtoken));
     }
-    if (!user) {
+    if (!user.nome) {
       setUser();
     }
   }, [token, localtoken]);

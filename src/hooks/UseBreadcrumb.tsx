@@ -1,3 +1,4 @@
+import { ROUTES } from "@/router/router";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface BreadcrumbContextType {
@@ -13,7 +14,7 @@ export const BreadcrumbProvider = ({ children }: { children: ReactNode }) => {
   const [breadcrumb, setBreadcrumb] = useState<Array<any>>([
     {
       label: "Início",
-      path: "/",
+      path: ROUTES.HOME,
     },
   ]);
 

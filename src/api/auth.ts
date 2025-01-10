@@ -7,7 +7,7 @@ const check = async () => {
     return response.data;
   } catch (error) {
     // Handle error
-    showToast("Erro ao verificar usuário", "error");
+    showToast(error.message, "error");
   }
 };
 
@@ -20,7 +20,7 @@ const login = async (cpf: string, password: string): any => {
     return response.data;
   } catch (error) {
     // Handle error
-    showToast("Erro ao realizar o login", "error");
+    showToast(error.message, "error");
   }
 };
 
@@ -28,9 +28,9 @@ const logout = async (): any => {
   try {
     const response = await axiosInstance.get("/logout");
     sessionStorage.clear();
-    return response.data;
+    return response;
   } catch (error) {
-    showToast("Erro ao realizar o logout", "error");
+    showToast(error.message, "error");
   }
 };
 
@@ -40,7 +40,7 @@ const user = async () => {
     return response.data;
   } catch (error) {
     // Handle error
-    showToast("Erro ao retornar usuário", "error");
+    showToast(error.message, "error");
   }
 };
 

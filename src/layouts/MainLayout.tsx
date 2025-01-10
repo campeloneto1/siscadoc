@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 import {
   Breadcrumb,
@@ -19,6 +19,11 @@ import { useBreadcrumb } from "@/hooks/UseBreadcrumb";
 
 export const MainLayout = () => {
   const { breadcrumb } = useBreadcrumb();
+  const navigate = useNavigate();
+
+  const changeRoute = (url: string) => {
+    navigate(url);
+  };
   return (
     <SidebarProvider>
       <SdcSidebar />
@@ -36,7 +41,10 @@ export const MainLayout = () => {
                         <BreadcrumbSeparator className="hidden md:block" />
                       ) : undefined}
                       <BreadcrumbItem className="hidden md:block">
-                        <BreadcrumbLink href={item.path}>
+                        <BreadcrumbLink
+                          className="cursor-pointer"
+                          onClick={() => changeRoute(item.path)}
+                        >
                           {item.label}
                         </BreadcrumbLink>
                       </BreadcrumbItem>

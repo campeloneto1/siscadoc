@@ -25,6 +25,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { AuthAPI } from "@/api";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/router/router";
 
 export function NavUser({
   user,
@@ -35,8 +38,13 @@ export function NavUser({
     avatar: string;
   };
 }) {
+  const navigate = useNavigate();
   const { isMobile } = useSidebar();
+  const logout = async () => {
+    await AuthAPI.logout();
 
+    navigate(ROUTES.AUTH);
+  };
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -98,9 +106,14 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => {
+                logout();
+              }}
+            >
               <LogOut />
-              Log out
+              Sair
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
